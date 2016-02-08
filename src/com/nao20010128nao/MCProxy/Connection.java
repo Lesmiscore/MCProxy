@@ -6,11 +6,6 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 
-/**
- * A class that handles Minecraft Query protocol requests
- *
- * @author Ryan McCann
- */
 public class Connection {
 	String serverAddress = "localhost";
 	int queryPort = 25565; // the default minecraft query port
