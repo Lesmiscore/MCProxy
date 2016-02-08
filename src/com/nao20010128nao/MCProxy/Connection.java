@@ -51,7 +51,9 @@ public class Connection {
 		DatagramPacket packet = new DatagramPacket(out, out.length);
 		socket.receive(packet);
 		byte[] recv = new byte[packet.getLength()];
-		System.arraycopy(packet.getData(), 0, recv, 0, recv.length);
+		byte tmp[] = packet.getData();
+		for (int i = 0; i < recv.length; i++)
+			recv[i] = tmp[i];
 		return recv;
 	}
 

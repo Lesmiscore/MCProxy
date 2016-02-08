@@ -49,8 +49,9 @@ public class MultipleUdpConnectionProxy implements Runnable, Closeable {
 					SocketAddress sockAddress = dp.getSocketAddress();
 
 					byte received[] = new byte[dp.getLength()];
-					System.arraycopy(dp.getData(), 0, received, 0,
-							received.length);
+					byte tmp[] = dp.getData();
+					for (int i = 0; i < received.length; i++)
+						received[i] = tmp[i];
 
 					String clientInfo = sockAddress.toString();
 					String ip = clientInfo
@@ -86,7 +87,7 @@ public class MultipleUdpConnectionProxy implements Runnable, Closeable {
 									try {
 										byte[] data = local.receive();
 										System.out.println(server_ip + ":"
-												+ server_port + "=");
+												+ server_port + ".");
 										DatagramPacket dp = new DatagramPacket(
 												data, data.length,
 												InetAddress.getByName(ip), port);
