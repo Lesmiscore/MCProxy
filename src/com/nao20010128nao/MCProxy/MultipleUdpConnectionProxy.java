@@ -6,6 +6,7 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketAddress;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -52,6 +53,7 @@ public class MultipleUdpConnectionProxy implements Runnable, Closeable {
 					byte tmp[] = dp.getData();
 					for (int i = 0; i < received.length; i++)
 						received[i] = tmp[i];
+					dump(received);
 
 					String clientInfo = sockAddress.toString();
 					String ip = clientInfo
@@ -88,6 +90,7 @@ public class MultipleUdpConnectionProxy implements Runnable, Closeable {
 										byte[] data = local.receive();
 										System.out.println(server_ip + ":"
 												+ server_port + ".");
+										dump(data);
 										DatagramPacket dp = new DatagramPacket(
 												data, data.length,
 												InetAddress.getByName(ip), port);
@@ -112,15 +115,13 @@ public class MultipleUdpConnectionProxy implements Runnable, Closeable {
 
 	void dump(byte[] b) {
 		StringBuilder sb = new StringBuilder(b.length * 3);
-		StringBuilder sb2 = new StringBuilder(b.length);
 		for (int i = 0; i < b.length; i++) {
 			sb.append(Character.forDigit(b[i] >> 4 & 0xF, 16));
 			sb.append(Character.forDigit(b[i] & 0xF, 16));
 			sb.append(' ');
-			sb2.append((char) b[i]);
 		}
 		System.out.println(sb.toString());
-		System.out.println(sb2.toString());
+		System.out.println(new String(b, StandardCharsets.UTF_8));
 	}
 
 	@Override
