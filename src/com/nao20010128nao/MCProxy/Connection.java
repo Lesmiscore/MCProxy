@@ -8,16 +8,15 @@ import java.net.InetAddress;
 
 public class Connection {
 	String serverAddress = "localhost";
-	int queryPort = 25565; // the default minecraft query port
+	int serverPort = 25565;
 
-	int localPort = 25566; // the local port we're connected to the server on
+	int bindPort = 25566;
 
-	private DatagramSocket socket = null; // prevent socket already bound
-											// exception
+	private DatagramSocket socket = null;
 
 	public Connection(String address, int port) {
 		serverAddress = address;
-		queryPort = port;
+		serverPort = port;
 	}
 
 	public byte[] sendUdpForReceive(byte[] input) throws IOException {
@@ -28,23 +27,23 @@ public class Connection {
 	public void sendUdp(byte[] input) throws IOException {
 		while (socket == null) {
 			try {
-				socket = new DatagramSocket(localPort);
+				socket = new DatagramSocket(bindPort);
 			} catch (BindException e) {
-				++localPort;
+				++bindPort;
 			}
 		}
 		InetAddress address = InetAddress.getByName(serverAddress);
 		DatagramPacket packet1 = new DatagramPacket(input, input.length,
-				address, queryPort);
+				address, serverPort);
 		socket.send(packet1);
 	}
 
 	public byte[] receive() throws IOException {
 		while (socket == null) {
 			try {
-				socket = new DatagramSocket(localPort);
+				socket = new DatagramSocket(bindPort);
 			} catch (BindException e) {
-				++localPort;
+				++bindPort;
 			}
 		}
 		byte[] out = new byte[1024 * 100];

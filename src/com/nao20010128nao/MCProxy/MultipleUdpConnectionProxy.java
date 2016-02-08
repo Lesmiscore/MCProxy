@@ -18,28 +18,28 @@ public class MultipleUdpConnectionProxy implements Runnable, Closeable {
 	Map<String, Connection> connections = new HashMap<>(10);
 	Map<Connection, String> connectionsR = new HashMap<>(10);
 
-	String server_ip = "127.0.0.1";
-	int server_port = 19133;
-	int proxy_port = 19132;
+	String serverIp = "127.0.0.1";
+	int serverPort = 19133;
+	int proxyPort = 19132;
 	DatagramSocket ds;
 
 	Set<Thread> servants = new HashSet<>(10);
 
 	public MultipleUdpConnectionProxy(String ip, int port, int proxPort) {
-		server_ip = ip;
-		server_port = port;
-		proxy_port = proxPort;
+		serverIp = ip;
+		serverPort = port;
+		proxyPort = proxPort;
 	}
 
 	@Override
 	public void run() {
-		System.out.println(server_ip);
-		System.out.println(server_port);
-		System.out.println(proxy_port);
+		System.out.println(serverIp);
+		System.out.println(serverPort);
+		System.out.println(proxyPort);
 		try {
-			server_ip = InetAddress.getByName(server_ip).getHostAddress();
+			serverIp = InetAddress.getByName(serverIp).getHostAddress();
 
-			ds = new DatagramSocket(proxy_port);
+			ds = new DatagramSocket(proxyPort);
 
 			byte buffer[] = new byte[4 * 1024 * 1024];
 			while (!Thread.currentThread().isInterrupted()) {
@@ -68,8 +68,8 @@ public class MultipleUdpConnectionProxy implements Runnable, Closeable {
 					} else {
 						System.out.println("New connection for: " + ip + ":"
 								+ port);
-						final Connection ph = new Connection(server_ip,
-								server_port);
+						final Connection ph = new Connection(serverIp,
+								serverPort);
 						ph.sendUdp(received);
 						connections.put(ip + ":" + port, ph);
 						connectionsR.put(ph, ip + ":" + port);
@@ -88,8 +88,8 @@ public class MultipleUdpConnectionProxy implements Runnable, Closeable {
 								while (!isInterrupted()) {
 									try {
 										byte[] data = local.receive();
-										System.out.println(server_ip + ":"
-												+ server_port + ".");
+										System.out.println(serverIp + ":"
+												+ serverPort + ".");
 										dump(data);
 										DatagramPacket dp = new DatagramPacket(
 												data, data.length,

@@ -17,16 +17,17 @@ public class LoggerProxy implements Runnable {
 	Queue<byte[]> stcPackets, ctsPackets;
 	PacketInserter pi = new PacketInserter();
 
-	String server_ip = "127.0.0.1";
-	int server_port = 19133;
-	int proxy_port = 19132;
+	String serverIp = "127.0.0.1";
+	int serverPort = 19133;
+	int proxyPort = 19132;
 	DatagramSocket ds;
-	int mcpe_bind = -1;
+	String bindIp = "";
+	int bindPort = -1;
 
 	public LoggerProxy(String ip, int port, int proxPort) {
-		server_ip = ip;
-		server_port = port;
-		proxy_port = proxPort;
+		serverIp = ip;
+		serverPort = port;
+		proxyPort = proxPort;
 		stcPackets = new LinkedList<>();
 		ctsPackets = new LinkedList<>();
 	}
@@ -34,14 +35,14 @@ public class LoggerProxy implements Runnable {
 	@Override
 	public void run() {
 
-		System.out.println(server_ip);
-		System.out.println(server_port);
-		System.out.println(proxy_port);
+		System.out.println(serverIp);
+		System.out.println(serverPort);
+		System.out.println(proxyPort);
 
 		try {
-			server_ip = InetAddress.getByName(server_ip).getHostAddress();
+			serverIp = InetAddress.getByName(serverIp).getHostAddress();
 
-			ds = new DatagramSocket(proxy_port);
+			ds = new DatagramSocket(proxyPort);
 
 			byte buffer[] = new byte[4 * 1024 * 1024];
 			while (!Thread.currentThread().isInterrupted()) {
@@ -64,23 +65,23 @@ public class LoggerProxy implements Runnable {
 
 					System.out.println(ip + ":" + port);
 
-					if (mcpe_bind == -1 & ip.equals("127.0.0.1")) {
-						mcpe_bind = port;
-						System.out.println("Detected MCPE bounded port: "
-								+ port);
+					if (bindPort == -1 & !ip.equals(serverIp)) {
+						bindIp = ip;
+						bindPort = port;
+						System.out.println("bind: " + ip + ":" + port);
 					}
 
 					byte[] buf = received;
 					dump(buf);
 					DatagramPacket senddp;
-					if (ip.equals(server_ip)) {
+					if (ip.equals(serverIp)) {
 						System.out.println("S->C");
 						senddp = new DatagramPacket(buf, buf.length,
-								InetAddress.getByName("localhost"), mcpe_bind);
+								InetAddress.getByName(bindIp), bindPort);
 					} else {
 						System.out.println("C->S");
 						senddp = new DatagramPacket(buf, buf.length,
-								InetAddress.getByName(server_ip), server_port);
+								InetAddress.getByName(serverIp), serverPort);
 					}
 					ds.send(senddp);
 				} catch (Exception exx) {
@@ -135,7 +136,7 @@ public class LoggerProxy implements Runnable {
 						if (ds == null) {
 							continue;// Connection is not ready
 						}
-						if (mcpe_bind == -1) {
+						if (bindPort == -1) {
 							continue;// The game is not ready
 						}
 						if (stcPackets.size() != 0) {
@@ -147,7 +148,7 @@ public class LoggerProxy implements Runnable {
 							DatagramPacket dp = new DatagramPacket(pack,
 									pack.length,
 									InetAddress.getByName("localhost"),
-									mcpe_bind);
+									bindPort);
 							ds.send(dp);
 						}
 						if (ctsPackets.size() != 0) {
@@ -158,8 +159,7 @@ public class LoggerProxy implements Runnable {
 							}
 							DatagramPacket dp = new DatagramPacket(pack,
 									pack.length,
-									InetAddress.getByName(server_ip),
-									server_port);
+									InetAddress.getByName(serverIp), serverPort);
 							ds.send(dp);
 						}
 					} catch (IOException e) {
