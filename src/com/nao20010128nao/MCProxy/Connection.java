@@ -5,7 +5,6 @@ import java.net.BindException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
-import java.security.SecureRandom;
 
 /**
  * A class that handles Minecraft Query protocol requests
@@ -13,11 +12,6 @@ import java.security.SecureRandom;
  * @author Ryan McCann
  */
 public class Connection {
-	static SecureRandom sr = new SecureRandom();
-
-	final static byte HANDSHAKE = 9;
-	final static byte LOGIN = 1;
-
 	String serverAddress = "localhost";
 	int queryPort = 25565; // the default minecraft query port
 
@@ -39,17 +33,12 @@ public class Connection {
 	public void sendUdp(byte[] input) throws IOException {
 		while (socket == null) {
 			try {
-				socket = new DatagramSocket(localPort); // create the socket
+				socket = new DatagramSocket(localPort);
 			} catch (BindException e) {
-				++localPort; // increment if port is already in use
+				++localPort;
 			}
 		}
-		// create a packet from the input data and send it on the socket
-		InetAddress address = InetAddress.getByName(serverAddress); // create
-																	// InetAddress
-																	// object
-																	// from the
-																	// address
+		InetAddress address = InetAddress.getByName(serverAddress);
 		DatagramPacket packet1 = new DatagramPacket(input, input.length,
 				address, queryPort);
 		socket.send(packet1);
@@ -58,12 +47,12 @@ public class Connection {
 	public byte[] receive() throws IOException {
 		while (socket == null) {
 			try {
-				socket = new DatagramSocket(localPort); // create the socket
+				socket = new DatagramSocket(localPort);
 			} catch (BindException e) {
-				++localPort; // increment if port is already in use
+				++localPort;
 			}
 		}
-		byte[] out = new byte[1024 * 100]; // TODO guess at max size
+		byte[] out = new byte[1024 * 100];
 		DatagramPacket packet = new DatagramPacket(out, out.length);
 		socket.receive(packet);
 		byte[] recv = new byte[packet.getLength()];
